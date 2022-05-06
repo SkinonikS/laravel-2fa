@@ -1,0 +1,30 @@
+{
+    "name": "skinoniks/laravel-2fa",
+    "description": "Two Factor Auth for Laravel",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "SkinonikS\\Laravel\\TwoFactorAuth\\": "src/"
+        }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SkinonikS\\Laravel\\TwoFactorAuth\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SkinonikS\\Laravel\\TwoFactorAuth\\TwoFactorAuthServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php ./vendor/bin/testbench package:discover --ansi"
+        ]
+    }
+}
