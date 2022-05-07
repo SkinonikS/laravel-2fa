@@ -2,6 +2,7 @@
     "name": "skinoniks/laravel-2fa",
     "description": "Two Factor Auth for Laravel",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": "^8.0",
         "laravel/framework": "^9.0"
@@ -30,5 +31,6 @@
         "post-autoload-dump": [
             "@php ./vendor/bin/testbench package:discover --ansi"
         ]
-    }
+    },
+    "minimum-stability": "dev"
 }

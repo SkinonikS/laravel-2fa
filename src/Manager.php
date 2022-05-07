@@ -169,4 +169,16 @@ class Manager
 
         return $method;
     }
+
+    /**
+     * @param mixed $name 
+     * @param mixed $arguments 
+     * @return mixed 
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
+     * @throws \InvalidArgumentException 
+     */
+    public function __call($name, $arguments)
+    {
+        return $this->method()->$name(...$arguments);
+    }
 }
