@@ -24,5 +24,6 @@ Homestead.json
 
 composer.lock
 tests/
+build/
 src/Metadata
 phpunit.xml

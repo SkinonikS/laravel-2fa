@@ -29,6 +29,10 @@ class BackupCodesMethod implements MethodInterface
      */
     public function verify(User $user, string $token): bool
     {
+        if (!$user->hasBackupCode($token)) {
+            return false;
+        }
+
         return $user->useBackupCode($token);
-    } 
+    }
 }

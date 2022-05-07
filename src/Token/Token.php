@@ -11,8 +11,8 @@ class Token implements TokenInterface
      */
     public function __construct(
         protected string|int $userAuthIdentifier,
-        protected array $authenticators,
-        protected ?string $preferred = null,
+        protected array $enabledMethods,
+        protected ?string $preferredMethod = null,
     )
     {
         //
@@ -31,7 +31,7 @@ class Token implements TokenInterface
      */
     public function getEnabledMethods(): array
     {
-        return $this->authenticators;
+        return $this->enabledMethods;
     }
 
     /**
@@ -39,6 +39,6 @@ class Token implements TokenInterface
      */
     public function getPreferredMethod(): ?string
     {
-        return $this->preferred;
+        return $this->preferredMethod;
     }
 }

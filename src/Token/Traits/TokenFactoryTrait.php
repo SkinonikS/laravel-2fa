@@ -36,7 +36,11 @@ trait TokenFactoryTrait
         if ($user instanceof HasMethodPreferrence) {
             $method = $user->getPreferredTwoFactorAuthMethod();
 
-            if ($this->getManager()->hasMethod($method) && $this->getManager()->method($method)->enabled($user)) {
+            if (
+                $method
+                && $this->getManager()->hasMethod($method)
+                && $this->getManager()->method($method)->enabled($user)
+            ) {
                 return $method;
             }
         }

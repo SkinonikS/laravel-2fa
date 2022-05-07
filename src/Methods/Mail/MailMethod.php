@@ -17,19 +17,20 @@ class MailMethod implements MethodInterface
     /** 
      * @var \Closure|null
      */
-    protected static ?Closure $codeGenerator = null;
+    protected static ?Closure $tokenGenerator = null;
 
     /**
      * @var string
      */
     protected string $key;
 
-    /**
+    /** 
      * @param \Illuminate\Session\Store $session 
+     * @param \Carbon\CarbonInterval $refreshIn 
      */
     public function __construct(
         protected Session $session,
-        protected ?CarbonInterval $refreshIn = null,
+        protected CarbonInterval $refreshIn,
     )
     {
         $this->key = $this->getName();
@@ -53,7 +54,7 @@ class MailMethod implements MethodInterface
         }
 
         $this->session->put($this->key, $this->mergePayload([
-            'token' => $token = $this->generateCode(),
+            'token' => $token = $this->generateToken($user),
         ]));
 
         return $token;
@@ -74,21 +75,30 @@ class MailMethod implements MethodInterface
     }
 
     /**
-     * @param \Closure $generator 
+     * @param \Closure|null $generator 
      */
-    public static function setCodeGenerator(Closure $generator): void
+    public static function setTokenGenerator(?Closure $generator): void
     {
-        static::$codeGenerator = $generator;
+        static::$tokenGenerator = $generator;
+    }
+
+    /** 
+     * 
+     */
+    public static function resetTokenGenerator(): void
+    {
+        static::setTokenGenerator(null);
     }
 
     /**
+     * @param \Illuminate\Foundation\Auth\User $user 
      * @return string 
      * @throws \Exception 
      */
-    protected function generateCode(): string
+    protected function generateToken(User $user): string
     {
-        if (static::$codeGenerator) {
-            return (string) call_user_func(static::$codeGenerator);
+        if (static::$tokenGenerator) {
+            return (string) call_user_func_array(static::$tokenGenerator, compact('user'));
         }
 
         return (string) random_int(100000, 999999);

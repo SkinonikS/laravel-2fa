@@ -26,7 +26,7 @@ class Config
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      */
-    public static function get(?string $path = null, mixed $default = null): mixed
+    public static function get(?string $path = null, $default = null)
     {
         $key = static::getKey();
 

@@ -88,9 +88,9 @@ class Features
      */
     public static function getEnabledFeatures(): array
     {
-        return array_map(static function (string $feature) {
+        return array_filter(static::getFeatures(), static function (string $feature) {
             return static::isEnabled($feature);
-        }, static::getFeatures());
+        });
     }
 
     /**

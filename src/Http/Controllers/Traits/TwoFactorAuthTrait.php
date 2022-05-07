@@ -35,7 +35,6 @@ trait TwoFactorAuthTrait
 
     /**
      * @param string $method 
-     * @return mixed 
      * @throws \Illuminate\Http\Exceptions\HttpResponseException 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException 

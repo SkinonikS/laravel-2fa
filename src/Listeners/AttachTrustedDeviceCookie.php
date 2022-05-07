@@ -26,7 +26,7 @@ class AttachTrustedDeviceCookie
      */
     public function handle(PassedEvent $event): void
     {
-        if (Features::isTrustedDeviceEnabled() && !$event->trusted) {
+        if (!Features::isTrustedDeviceEnabled() && !$event->trusted) {
             return;
         }
 

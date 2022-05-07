@@ -32,12 +32,8 @@ trait HasCooldownTrait
      */
     protected function mergePayload(array $payload): array
     {
-        if (!$interval = $this->getRefreshIn()) {
-            return $payload;
-        }
-
         return array_merge($payload, [
-            'refresh_at' => $this->availableAt($interval),
+            'refresh_at' => $this->availableAt($this->getRefreshIn()),
         ]);
     }
 

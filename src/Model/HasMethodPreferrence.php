@@ -5,7 +5,7 @@ namespace SkinonikS\Laravel\TwoFactorAuth\Model;
 interface HasMethodPreferrence
 {
     /**
-     * @return string 
+     * @return string|null
      */
-    public function getPreferredTwoFactorAuthMethod(): string;
+    public function getPreferredTwoFactorAuthMethod(): ?string;
 }

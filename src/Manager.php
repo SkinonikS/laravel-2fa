@@ -122,7 +122,7 @@ class Manager
     {
         $config = Config::get("methods.$name");
 
-        if (!$config) {
+        if (!is_array($config)) {
             throw new InvalidArgumentException("Method `$name` is not defined in the configuration.");
         }
 
@@ -142,7 +142,7 @@ class Manager
     {
         return new MailMethod(
             $this->app['session.store'],
-            $config['refresh_in'] ?? null,
+            $config['refresh_in'],
         );
     }
 
