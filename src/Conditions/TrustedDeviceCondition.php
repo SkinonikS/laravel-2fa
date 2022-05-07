@@ -4,15 +4,15 @@ namespace SkinonikS\Laravel\TwoFactorAuth\Conditions;
 
 use Illuminate\Http\Request;
 use SkinonikS\Laravel\TwoFactorAuth\Token\TokenInterface;
-use SkinonikS\Laravel\TwoFactorAuth\Features\TrustedDevice\TrustedDevice;
+use SkinonikS\Laravel\TwoFactorAuth\Features\TrustedDevice\TrustedDeviceInterface;
 
 class TrustedDeviceCondition implements ConditionInterface
 {
     /**
-     * @param \SkinonikS\Laravel\TwoFactorAuth\Features\TrustedDevice\TrustedDevice $trustedDevice 
+     * @param \SkinonikS\Laravel\TwoFactorAuth\Features\TrustedDevice\TrustedDeviceInterface $trustedDevice 
      */
     public function __construct(
-        protected TrustedDevice $trustedDevice,
+        protected TrustedDeviceInterface $trustedDevice,
     )
     {
         //

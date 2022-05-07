@@ -87,8 +87,8 @@ class TwoFactorAuthServiceProvider extends ServiceProvider
             $app->refresh('request', $trusted, 'setRequest');
 
             return $trusted
-                ->setCookieName($config['cookie']['name'])
-                ->setExpiresIn($config['cookie']['expires_in']);
+                ->setCookieName($config['cookie']['name'] ?? 'device_id')
+                ->setExpiresIn($config['cookie']['expires_in'] ?? null);
         });
         $this->app->alias(TrustedDeviceInterface::class, TrustedDevice::class);
     }

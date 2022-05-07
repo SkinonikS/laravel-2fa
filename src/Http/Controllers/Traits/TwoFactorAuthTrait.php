@@ -168,7 +168,7 @@ trait TwoFactorAuthTrait
             }
         }
 
-        throw new InvalidArgumentException('Guard driver with `eloquent` not found.');
+        throw new InvalidArgumentException('Guard driver with name `eloquent` not found.');
     }
 
     /**

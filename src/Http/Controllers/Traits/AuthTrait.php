@@ -6,7 +6,7 @@ use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use SkinonikS\Laravel\TwoFactorAuth\Token\TokenInterface;
-use SkinonikS\Laravel\TwoFactorAuth\Conditions\Checker\Checker;
+use SkinonikS\Laravel\TwoFactorAuth\Conditions\Checker\CheckerInterface;
 use SkinonikS\Laravel\TwoFactorAuth\Http\TwoFactorAuth;
 use SkinonikS\Laravel\TwoFactorAuth\Token\TokenFactoryInterface;
 
@@ -20,13 +20,13 @@ trait AuthTrait
      */
     protected function attempt(User $user, bool $remember = false)
     {
-        $token = app(TokenFactoryInterface::class)
+        $token = $this->getTokenFactory()
             ->make($user);
 
         if ($this->shouldStartTwoFactorAuth($token)) {
             return $this->startTwoFactorAuth($token, $remember);
         }
-        
+
         Auth::login($user, $remember);
         
         $this->fireLoginEvent($user, $remember);
@@ -60,7 +60,7 @@ trait AuthTrait
      */
     protected function shouldStartTwoFactorAuth(TokenInterface $token): bool
     {
-        return app(Checker::class)->check($token);
+        return app(CheckerInterface::class)->check($token);
     }
 
     /**
@@ -70,5 +70,14 @@ trait AuthTrait
     protected function authenticated(User $user, bool $remember = false)
     {
         //
+    }
+
+    /**
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Token\TokenFactoryInterface 
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
+     */
+    protected function getTokenFactory(): TokenFactoryInterface
+    {
+        return app(TokenFactoryInterface::class);
     }
 }

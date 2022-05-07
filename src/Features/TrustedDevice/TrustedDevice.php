@@ -89,7 +89,7 @@ class TrustedDevice implements TrustedDeviceInterface
 
     /**
      * @param \Illuminate\Http\Request $request 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Features\TrustedDevice\TrustedDevice 
+     * @return self
      */
     public function setRequest(Request $request): self
     {

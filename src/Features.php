@@ -95,11 +95,11 @@ class Features
 
     /**
      * @param string $path 
-     * @return null|array 
+     * @return array 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      */
-    protected static function getFeatureConfig(string $path): ?array
+    protected static function getFeatureConfig(string $path): array
     {
-        return Config::get("features.{$path}");
+        return Config::get("features.{$path}", []);
     }
 }

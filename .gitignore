@@ -23,7 +23,5 @@ Homestead.json
 .phpunit.result.cache
 
 composer.lock
-tests/
 build/
-src/Metadata
 phpunit.xml
