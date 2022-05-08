@@ -40,7 +40,7 @@ trait HasCooldownTrait
     /**
      * @return \Carbon\CarbonInterval 
      */
-    abstract protected function getRefreshIn(): CarbonInterval;
+    abstract public function getRefreshIn(): CarbonInterval;
 
     /**
      * @return null|array 

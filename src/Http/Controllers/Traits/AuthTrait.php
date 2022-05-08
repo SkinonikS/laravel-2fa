@@ -28,8 +28,6 @@ trait AuthTrait
         }
 
         Auth::login($user, $remember);
-        
-        $this->fireLoginEvent($user, $remember);
 
         return $this->authenticated($user, $remember);
     }
@@ -41,16 +39,6 @@ trait AuthTrait
     protected function startTwoFactorAuth(TokenInterface $token, bool $remember = false): void
     {
         TwoFactorAuth::start($token, $remember);
-    }
-
-    /**
-     * @param \Illuminate\Foundation\Auth\User $user 
-     * @param bool $remember 
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
-     */
-    protected function fireLoginEvent(User $user, bool $remember = false): void
-    {
-        event(new LoginEvent(Auth::guard(), $user, $remember));
     }
 
     /**

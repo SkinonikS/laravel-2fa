@@ -3,26 +3,21 @@
 namespace SkinonikS\Laravel\TwoFactorAuth\Methods\Mail;
 
 use Carbon\CarbonInterval;
-use Closure;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Session\Store as Session;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\Traits\HasCooldownTrait;
 use SkinonikS\Laravel\TwoFactorAuth\Model\HasMailMethod;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\TokenGenerator;
 
 class MailMethod implements MethodInterface
 {
     use HasCooldownTrait;
 
-    /** 
-     * @var \Closure|null
-     */
-    protected static ?Closure $tokenGenerator = null;
-
     /**
      * @var string
      */
-    protected string $key;
+    protected string $sessionKey;
 
     /** 
      * @param \Illuminate\Session\Store $session 
@@ -33,7 +28,7 @@ class MailMethod implements MethodInterface
         protected CarbonInterval $refreshIn,
     )
     {
-        $this->key = $this->getName();
+        $this->sessionKey = $this->getSessionKey();
     }
 
     /**
@@ -53,8 +48,8 @@ class MailMethod implements MethodInterface
             return null;
         }
 
-        $this->session->put($this->key, $this->mergePayload([
-            'token' => $token = $this->generateToken($user),
+        $this->session->put($this->sessionKey, $this->mergePayload([
+            'token' => $token = TokenGenerator::generate($user),
         ]));
 
         return $token;
@@ -65,49 +60,25 @@ class MailMethod implements MethodInterface
      */
     public function verify(User $user, string $token): bool
     {
-        $payload = $this->session->pull($this->key);
+        $payload = $this->session->get($this->sessionKey);
 
         if (!$payload || !array_key_exists('token', $payload)) {
             return false;
         }
 
-        return hash_equals($payload['token'], $token);
-    }
+        $success = hash_equals($payload['token'], $token);
 
-    /**
-     * @param \Closure|null $generator 
-     */
-    public static function setTokenGenerator(?Closure $generator): void
-    {
-        static::$tokenGenerator = $generator;
-    }
-
-    /** 
-     * 
-     */
-    public static function resetTokenGenerator(): void
-    {
-        static::setTokenGenerator(null);
-    }
-
-    /**
-     * @param \Illuminate\Foundation\Auth\User $user 
-     * @return string 
-     * @throws \Exception 
-     */
-    protected function generateToken(User $user): string
-    {
-        if (static::$tokenGenerator) {
-            return (string) call_user_func_array(static::$tokenGenerator, compact('user'));
+        if ($success) {
+            $this->session->forget($this->sessionKey);
         }
 
-        return (string) random_int(100000, 999999);
+        return $success;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function getRefreshIn(): CarbonInterval
+    public function getRefreshIn(): CarbonInterval
     {
         return $this->refreshIn;
     }
@@ -117,13 +88,13 @@ class MailMethod implements MethodInterface
      */
     protected function getPayload(): ?array
     {
-        return $this->session->get($this->key);
+        return $this->session->get($this->sessionKey);
     }
 
     /**
      * @return string 
      */
-    protected function getName(): string
+    protected function getSessionKey(): string
     {
         return 'two-factor-auth_'.sha1(static::class);
     }

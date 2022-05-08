@@ -5,11 +5,10 @@ namespace SkinonikS\Laravel\TwoFactorAuth\Tests;
 use InvalidArgumentException;
 use SkinonikS\Laravel\TwoFactorAuth\Config;
 use SkinonikS\Laravel\TwoFactorAuth\Manager;
-use SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\MailMethod;
-use SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface;
 use SkinonikS\Laravel\TwoFactorAuth\Tests\Mocks\TestMethod;
 use SkinonikS\Laravel\TwoFactorAuth\Tests\TestCase;
 use Illuminate\Support\Facades\Config as LaravelConfig;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator;
 
 class ManagerTest extends TestCase
 {
@@ -41,7 +40,7 @@ class ManagerTest extends TestCase
     {
         $method = $this->app[Manager::class]->method('email');
 
-        $this->assertInstanceOf(MethodInterface::class, $method);
+        $this->assertInstanceOf(Authenticator::class, $method);
     }
 
     public function testManagerResolveMethodsWithCustomDriver()
@@ -54,7 +53,7 @@ class ManagerTest extends TestCase
 
         $method = $manager->method('newmethod');
 
-        $this->assertInstanceOf(MethodInterface::class, $method);
+        $this->assertInstanceOf(Authenticator::class, $method);
     }
 
     public function testManagerChecksThatMethodExistsInTheConfiguration()
@@ -69,7 +68,7 @@ class ManagerTest extends TestCase
         $manager = $this->app[Manager::class];
 
         $this->assertSame('email', $manager->getDefaultMethod());
-        $this->assertInstanceOf(MailMethod::class, $manager->method());
+        $this->assertInstanceOf(Authenticator::class, $manager->method());
     }
 
     public function testExceptionIsThrownWhenNoDefaultMethodIsDefined()

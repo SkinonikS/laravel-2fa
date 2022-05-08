@@ -3,13 +3,10 @@
 namespace SkinonikS\Laravel\TwoFactorAuth\Http\Controllers\Traits;
 
 use InvalidArgumentException;
-use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
-use SkinonikS\Laravel\TwoFactorAuth\Events\PassedEvent;
-use SkinonikS\Laravel\TwoFactorAuth\Events\TokenSentEvent;
 use SkinonikS\Laravel\TwoFactorAuth\Http\TwoFactorAuth;
 use SkinonikS\Laravel\TwoFactorAuth\Manager;
 
@@ -55,8 +52,6 @@ trait TwoFactorAuthTrait
         $token = $this->getManager()
             ->method($method)
             ->sendToken($user);
-        
-        $this->fireTwoFactorAuthTokenSentEvent($user, $method, $token);
             
         return $this->tokenSent($user, $method, $token);
     }
@@ -68,19 +63,6 @@ trait TwoFactorAuthTrait
     protected function methodDisabled(string $method, string $action)
     {
         //
-    }
-
-    /**
-     * @param \Illuminate\Foundation\Auth\User $user 
-     * @param string $method
-     * @param string|null $token 
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
-     */
-    protected function fireTwoFactorAuthTokenSentEvent(User $user, string $method, ?string $token = null): void
-    {
-        if (!empty($token)) {
-            event(new TokenSentEvent($user, $method, $token));
-        }
     }
 
     /**
@@ -119,29 +101,15 @@ trait TwoFactorAuthTrait
 
         $verified = $this->getManager()
             ->method($method)
-            ->verify($user, $token);
+            ->verify($user, $token, $trusted);
 
         if (!$verified) {
             return $this->invalidTwoFactorAuthToken($token);
         }
 
-        $this->fireTwoFactorAuthPassedEvent($user, $trusted);
-
         Auth::login($user, $payload['remember'] ?? false);
 
-        $this->fireLoginEvent($user, $payload['remember']);
-
         return $this->authenticated($user, $payload);
-    }
-    
-    /**
-     * @param \Illuminate\Foundation\Auth\User $user 
-     * @param bool $remember 
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
-     */
-    protected function fireLoginEvent(User $user, bool $remember = false): void
-    {
-        event(new LoginEvent(Auth::guard(), $user, $remember));
     }
 
     /**
@@ -189,16 +157,6 @@ trait TwoFactorAuthTrait
     protected function invalidTwoFactorAuthToken(string $token)
     {
         throw ValidationException::withMessages([ 'token' => __('auth.two_factor_auth.token'), ]);
-    }
-
-    /**
-     * @param \Illuminate\Foundation\Auth\User $user 
-     * @param bool $trusted 
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException 
-     */
-    protected function fireTwoFactorAuthPassedEvent(User $user, bool $trusted = false): void
-    {
-        event(new PassedEvent($user, $trusted));
     }
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use ReflectionClass;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\MailMethod;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\TokenGenerator;
 use SkinonikS\Laravel\TwoFactorAuth\Tests\Mocks\TestUser;
 use SkinonikS\Laravel\TwoFactorAuth\Tests\TestCase;
 
@@ -30,13 +31,11 @@ class MailMethodTest extends TestCase
     public function testTokenSent()
     {
         $this->flushSession();
-        
-        MailMethod::resetTokenGenerator();
 
         $method = $this->createMethod();
         
         $ref = new ReflectionClass(MailMethod::class);
-        $keyMethod = $ref->getMethod('getName');
+        $keyMethod = $ref->getMethod('getSessionKey');
         $keyMethod->setAccessible(true);
         $key = $keyMethod->invoke($method);
 
@@ -55,20 +54,16 @@ class MailMethodTest extends TestCase
     {
         $this->flushSession();
 
-        MailMethod::setTokenGenerator(static function ($user) {
-            return 'code';
+        TokenGenerator::use(static function () {
+            return 'custom';
         });
 
         $method = $this->createMethod();
 
         $user = TestUser::factory()->create();
 
-        $success = $method->verify($user, 'code');
-
-        $this->assertFalse($success);
-
         $method->sendToken($user);
-        $success = $method->verify($user, 'code');
+        $success = $method->verify($user, 'custom');
 
         $this->assertTrue($success);
     }

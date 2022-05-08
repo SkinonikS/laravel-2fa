@@ -16,6 +16,7 @@ class PassedEvent
      */
     public function __construct(
         public User $user,
+        public string $method,
         public bool $trusted = false,
     )
     {

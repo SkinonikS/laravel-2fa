@@ -35,7 +35,7 @@ class AttachTrustedDeviceCookieTest extends TestCase
         $user = TestUser::factory()->create();
 
         $this->app[AttachTrustedDeviceCookie::class]
-            ->handle(new PassedEvent($user, true));
+            ->handle(new PassedEvent($user, 'email', true));
 
         $this->assertTrue(Cookie::hasQueued('cookieName'));
     }
@@ -56,7 +56,7 @@ class AttachTrustedDeviceCookieTest extends TestCase
         $user = TestUser::factory()->create();
 
         $this->app[AttachTrustedDeviceCookie::class]
-            ->handle(new PassedEvent($user, false));
+            ->handle(new PassedEvent($user, 'email', false));
 
         $this->assertFalse(Cookie::hasQueued('cookieName'));
     }
@@ -70,7 +70,7 @@ class AttachTrustedDeviceCookieTest extends TestCase
         $user = TestUser::factory()->create();
 
         $this->app[AttachTrustedDeviceCookie::class]
-            ->handle(new PassedEvent($user, true));
+            ->handle(new PassedEvent($user, 'email', true));
 
         $this->assertFalse(Cookie::hasQueued('cookieName'));
     }

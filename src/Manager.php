@@ -7,13 +7,14 @@ use InvalidArgumentException;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Str;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\BackupCodes\BackupCodesMethod;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\MailMethod;
 use SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface;
 
 class Manager
 {
 /**
-     * @var array<string, \SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface>
+     * @var array<string, \SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator>
      */
     protected array $resolved = [];
 
@@ -34,11 +35,11 @@ class Manager
 
     /**
      * @param string|null $method 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      * @throws \InvalidArgumentException 
      */
-    public function method(?string $method = null): MethodInterface
+    public function method(?string $method = null): Authenticator
     {
         $method = $method ?: $this->getDefaultMethod();
 
@@ -79,22 +80,22 @@ class Manager
 
     /**
      * @param string $name 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      * @throws \InvalidArgumentException 
      */
-    protected function resolve(string $name): MethodInterface
+    protected function resolve(string $name): Authenticator
     {
         $config = $this->getConfig($name);
 
         if (array_key_exists($config['driver'], $this->customResolvers)) {
-            return $this->resolveCustom($config['driver'], $config);
+            return $this->resolveCustom($name, $config['driver'], $config);
         }
 
         $method = 'create' . Str::ucfirst($config['driver']) . 'Driver';
 
         if (method_exists($this, $method)) {
-            return $this->{$method}($config);
+            return $this->{$method}($name, $config);
         }
 
         throw new InvalidArgumentException("Method driver `{$config['driver']}` is not supported.");
@@ -102,14 +103,25 @@ class Manager
 
     /**
      * @param string $name 
+     * @param string $driverName 
      * @param array $config 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator 
      */
-    protected function resolveCustom(string $name, array $config): MethodInterface
+    protected function resolveCustom(string $name, string $driverName, array $config): Authenticator
     {
-        $resolver = $this->customResolvers[$name];
+        $resolver = $this->customResolvers[$driverName];
 
-        return $resolver($config, $this->app);
+        return $this->buildMethod($name, $resolver($config, $this->app));
+    }
+
+    /**
+     * @param string $name 
+     * @param \SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface $method 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator 
+     */
+    protected function buildMethod(string $name, MethodInterface $method): Authenticator
+    {
+        return new Authenticator($name, $method);
     }
 
     /**
@@ -134,25 +146,26 @@ class Manager
     }
 
     /**
+     * @param string $name
      * @param array $config 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\MailMethod 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\Authenticator 
      * @throws \Illuminate\Contracts\Container\BindingResolutionException 
      */
-    protected function createEmailDriver(array $config): MailMethod
+    protected function createEmailDriver(string $name, array $config): Authenticator
     {
-        return new MailMethod(
-            $this->app['session.store'],
-            $config['refresh_in'],
-        );
+        $method = new MailMethod($this->app['session.store'], $config['refresh_in']);
+
+        return $this->buildMethod($name, $method);
     }
 
     /**
+     * @param string $name 
      * @param array $config 
-     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\BackupCodes\BackupCodesMethod 
+     * @return \SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\Authenticator 
      */
-    protected function createBackupCodesDriver(array $config): BackupCodesMethod
+    protected function createBackupCodesDriver(string $name, array $config): Authenticator
     {
-        return new BackupCodesMethod();
+        return $this->buildMethod($name, new BackupCodesMethod());
     }
 
     /**

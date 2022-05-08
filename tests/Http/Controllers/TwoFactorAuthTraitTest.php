@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Config as LaravelConfig;
 use SkinonikS\Laravel\TwoFactorAuth\Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
-use SkinonikS\Laravel\TwoFactorAuth\Methods\Mail\MailMethod;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\TokenGenerator;
 use SkinonikS\Laravel\TwoFactorAuth\Tests\Mocks\TestUser;
 
 class TwoFactorAuthTraitTest extends TestCase
@@ -48,11 +48,9 @@ class TwoFactorAuthTraitTest extends TestCase
 
     public function testThatCodeInvalidOnVerify()
     {
-        $this->expectException(ValidationException::class);
-
         $this->startFakeTwoFactorAuth();
 
-        MailMethod::resetTokenGenerator();
+        TokenGenerator::reset();
 
         LaravelConfig::set(Config::get(), [
             'methods' => [
@@ -63,6 +61,7 @@ class TwoFactorAuthTraitTest extends TestCase
             ],
         ]);
 
+        $this->expectException(ValidationException::class);
         $this->sendToken('email');
         $this->verify('email', 'code');
     }
@@ -71,7 +70,7 @@ class TwoFactorAuthTraitTest extends TestCase
     {
         $this->startFakeTwoFactorAuth();
 
-        MailMethod::setTokenGenerator(static function ($user) {
+        TokenGenerator::use(static function ($user) {
             return 'code';
         });
 

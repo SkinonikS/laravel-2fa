@@ -37,7 +37,7 @@ class TokenFactory implements TokenFactoryInterface
     /**
      * @return \SkinonikS\Laravel\TwoFactorAuth\Manager 
      */
-    protected function getManager(): Manager
+    public function getManager(): Manager
     {
         return $this->manager;
     }

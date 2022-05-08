@@ -4,7 +4,7 @@ namespace SkinonikS\Laravel\TwoFactorAuth\Token\Traits;
 
 use Illuminate\Foundation\Auth\User;
 use SkinonikS\Laravel\TwoFactorAuth\Manager;
-use SkinonikS\Laravel\TwoFactorAuth\Methods\MethodInterface;
+use SkinonikS\Laravel\TwoFactorAuth\Methods\Authenticator;
 use SkinonikS\Laravel\TwoFactorAuth\Model\HasMethodPreferrence;
 
 trait TokenFactoryTrait
@@ -21,7 +21,7 @@ trait TokenFactoryTrait
         return collect($manager->getMethods())
             ->mapWithKeys(static function ($name) use ($manager) {
                 return [$name => $manager->method($name)];
-            })->filter(static function (MethodInterface $method) use ($user) {
+            })->filter(static function (Authenticator $method) use ($user) {
                 return $method->enabled($user);
             })->keys()->all();
     }
