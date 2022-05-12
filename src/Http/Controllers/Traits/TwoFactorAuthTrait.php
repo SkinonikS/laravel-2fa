@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
+use SkinonikS\Laravel\TwoFactorAuth\Exceptions\NotStartedException;
 use SkinonikS\Laravel\TwoFactorAuth\Http\TwoFactorAuth;
 use SkinonikS\Laravel\TwoFactorAuth\Manager;
 
@@ -141,10 +142,17 @@ trait TwoFactorAuthTrait
 
     /**
      * @return array 
+     * @throws \SkinonikS\Laravel\TwoFactorAuth\Exceptions\NotStartedException 
      */
     protected function getPayload(): array
     {
-        return TwoFactorAuth::getPayload();
+        $payload = TwoFactorAuth::getPayload();
+
+        if (empty($payload)) {
+            throw new NotStartedException('TwoFactorAuth not started.');
+        }
+
+        return $payload;
     }
 
     /**

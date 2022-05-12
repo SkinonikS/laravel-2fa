@@ -25,8 +25,6 @@ class TwoFactorAuth
 
     /**
      * @return array 
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException 
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException 
      */
     public static function getPayload(): array
     {
@@ -35,7 +33,7 @@ class TwoFactorAuth
 
     /**
      * @param \SkinonikS\Laravel\TwoFactorAuth\Token\TokenInterface $token 
-     * @param bool $rememberM
+     * @param bool $remember
      * @return array 
      */
     public static function start(TokenInterface $token, bool $remember = false): array
@@ -59,16 +57,16 @@ class TwoFactorAuth
 
     /**
      * @param \SkinonikS\Laravel\TwoFactorAuth\Token\TokenInterface $token 
-     * @param bool $rememberMe 
+     * @param bool $remember
      * @return array 
      */
-    protected static function generatePayload(TokenInterface $token, bool $rememberMe = false): array
+    protected static function generatePayload(TokenInterface $token, bool $remember = false): array
     {
         return [
             'enabled_methods' => $token->getEnabledMethods(),
             'preferred_method' => $token->getPreferredMethod(),
             'user_id' => $token->getUserAuthIdentifier(),
-            'remember' => $rememberMe,
+            'remember' => $remember,
         ];
     }
 }

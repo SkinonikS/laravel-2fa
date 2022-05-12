@@ -98,7 +98,7 @@ class Authenticator
     protected function fireTokenSentEvent(User $user, string $token): void
     {
         $event = self::$tokenSentEvent
-            ? call_user_func(self::$tokenSentEvent, $user, $token)
+            ? call_user_func(self::$tokenSentEvent, $user, $this->name, $token)
             : new TokenSentEvent($user, $this->name, $token);
 
         event($event);
